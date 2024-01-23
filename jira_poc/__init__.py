@@ -1,5 +1,5 @@
 from flask import Flask 
-
+from jira_poc.utility.jira_auth import get_jira
 # Blueprints
 app = Flask(__name__)
 
@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 from pathlib import Path
 load_dotenv()
 
-
+# Jjira client
+jira_client = get_jira()
 
 
 from jira_api.views import jiraBlueprint

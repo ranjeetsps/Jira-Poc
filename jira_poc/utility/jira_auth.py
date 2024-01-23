@@ -1,7 +1,6 @@
 import requests, base64, codecs
-from jira_poc import app
 import os
-
+from jira import JIRA
 
 
 def get_jira_auth_headers():
@@ -16,3 +15,32 @@ def get_jira_auth_headers():
     # Creating the Authorization header
     auth_header = {"Authorization": f"Basic {encoded_auth_string}"}
     return auth_header
+
+def get_jira():
+    """
+    Retrieves or initializes the global JIRA client instance.
+
+    Returns:
+        JIRA: A JIRA client instance connected to the specified JIRA server.
+    """
+
+    # Creating the JIRA client instance with the specified options and authentication details
+    JIRA_GLOBAL = JIRA(
+        {"server":os.getenv('JIRA_SERVER')},
+        basic_auth=(
+            os.getenv('JIRA_USERNAME'),
+            os.getenv('JIRA_SECRET_KEY')
+        )
+    )
+
+    # Return the initialized JIRA client
+    return JIRA_GLOBAL
+
+
+def get_jira_serialize_project(data):
+    serialized_project = {}
+    for key, value in data.__dict__.items():
+        # Convert non-serializable values to strings
+        serialized_value = str(value) if isinstance(value, (type(None), str, int, float, bool)) else repr(value)
+        serialized_project[key] = serialized_value
+    return serialized_project
