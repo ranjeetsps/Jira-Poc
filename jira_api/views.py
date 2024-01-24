@@ -59,7 +59,7 @@ class ListIssueLinkTypes(MethodView):
             return jsonify({"text":" success","link_types":issue_link_types_list})
         except Exception as E:
             return jsonify({"text":" Failed","error":str(E)})
-9
+
 
 class ListCustomFields(MethodView):
     def get(self):
@@ -67,12 +67,13 @@ class ListCustomFields(MethodView):
         Summary: Lists all custom fields.
         """
         try:
-            custom_fields = jira_client.custom_fields(projectKeys="RISK")
-            print(custom_fields)
-            return jsonify({"text":" success"})
+            project = jira_client.project("RISK")
+
+            fields = jira_client.fields()
+            return jsonify({"text":" success","fields":fields})
         except Exception as E:
             return jsonify({"text":" Failed","error":str(E)})
-9
+
 
 
 
@@ -111,23 +112,23 @@ class UpdateRisk(MethodView):
             issue = jira_client.issue("RISK-20")
             # print("issue.fields",issue.fields.__dict__)
 
-            fields_dict = {}
-            for field_name, field_value in issue.fields.__dict__.items():
-                if hasattr(field_value, '__dict__'):
-                    # If the field_value has its own __dict__, convert it to a plain dictionary
-                    fields_dict[field_name] = dict(field_value.__dict__)
-                else:
-                    # If it doesn't have __dict__, just use the value as is
-                    fields_dict[field_name] = field_value
+            print(issue.fields.customfield_10034)
+    
+
+
+
+            # fields_dict = {}
+            # for field_name, field_value in issue.fields.__dict__.items():
+            #     if hasattr(field_value, '__dict__'):
+            #         # If the field_value has its own __dict__, convert it to a plain dictionary
+            #         fields_dict[field_name] = dict(field_value.__dict__)
+            #     else:
+            #         # If it doesn't have __dict__, just use the value as is
+            #         fields_dict[field_name] = field_value
 
             # Print or use the fields_dict as needed
-            print("::::::::::::::::::::::")
-            print(fields_dict)
-
-
-
-
-
+            # print("::::::::::::::::::::::")
+            # print(fields_dict)
 
             return jsonify({"text":" success","issue" :"issue" })
         except Exception as E:
@@ -135,10 +136,6 @@ class UpdateRisk(MethodView):
 
 
 # jira.assign_issue(issue, 'newassignee')
-
-
-
-
 
 jiraBlueprint.add_url_rule('/custom_fields', view_func=ListCustomFields.as_view('custom_fields'))
 
