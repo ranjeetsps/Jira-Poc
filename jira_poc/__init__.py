@@ -14,6 +14,4 @@ jira_client = get_jira()
 
 
 from jira_api.views import jiraBlueprint
-from jira_api.views2 import *
-
 app.register_blueprint(jiraBlueprint, url_prefix ='/jira')

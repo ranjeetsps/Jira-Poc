@@ -117,6 +117,7 @@ class CreateRisk(MethodView):
             
             # Update a custom field for the new issue (e.g., customfield_10035 with value "1 - Low")
             new_issue.update(fields={"customfield_10035": {"value": "1 - Low"}})
+            new_issue.update(fields={"customfield_10034": {"value": "1 - Rare"}})
             
             # Serialize the created issue using the get_jira_serialized_object function
             new_issue = [get_jira_serialized_object(new_issue)]
@@ -209,28 +210,6 @@ class CreateIssueLink(MethodView):
 
 
 
-
-class UpdateIssue(MethodView):
-    def post(self):
-        try:
-            data = request.json
-            issue = jira_client.issue(data["issue_id"])
-            for field_name in issue.raw['fields']:
-                print("field_name======================", field_name)
-            issue.update(summary=data["summary"], description=data["description"])
-            status_name = issue.fields.status.name if issue.fields.status else None
-            new_data = {
-                "key": issue.key,
-                "summary": issue.fields.summary,
-                "description": issue.fields.description,
-                "status": status_name,
-                "assignee": issue.fields.assignee
-            }
-
-            return jsonify({"text": " success", "status": 200, "message": "issues updated successfully", "updated data": new_data})
-        except Exception as E:
-            return jsonify({"text": " Failed", "error": str(E)})
-
 class UpdateRisk(MethodView):
     def put(self):
         """
@@ -240,32 +219,27 @@ class UpdateRisk(MethodView):
 
         """
         try:
-            issue = jira_client.issue("RISK-20")
-            # print("issue.fields",issue.fields.__dict__)
+            data = request.json
+            issue = jira_client.issue(data["issue_id"])
+            
+            issue.update(summary=data["summary"], description = data["description"])
+            issue.update(fields={"customfield_10035": {"value": data["impact"]}})
+            issue.update(fields={"customfield_10034": {"value": data["likelyhood"]}})
 
-            print(issue.fields.customfield_10034)
-    
+            status_name = issue.fields.status.name if issue.fields.status else None
+            new_data = {
+                "key": issue.key,
+                "summary": issue.fields.summary,
+                "description": issue.fields.description,
+                "status": status_name,
+                "assignee": issue.fields.assignee ,
+                # "impact" : issue.fields.customfield_10035 ,
+                # "likelyhood" : issue.fields.customfield_10034
+            }
 
-
-
-            # fields_dict = {}
-            # for field_name, field_value in issue.fields.__dict__.items():
-            #     if hasattr(field_value, '__dict__'):
-            #         # If the field_value has its own __dict__, convert it to a plain dictionary
-            #         fields_dict[field_name] = dict(field_value.__dict__)
-            #     else:
-            #         # If it doesn't have __dict__, just use the value as is
-            #         fields_dict[field_name] = field_value
-
-            # Print or use the fields_dict as needed
-            # print("::::::::::::::::::::::")
-            # print(fields_dict)
-
-            return jsonify({"text":" success","issue" :"issue" })
+            return jsonify({"text": " success", "status": 200, "message": "issues updated successfully", "updated data": new_data})
         except Exception as E:
-            return jsonify({"text":" Failed","error":str(E)})
-
-
+            return jsonify({"text": " Failed", "error": str(E)})
 
 
 
@@ -284,6 +258,5 @@ jiraBlueprint.add_url_rule('/issues/<string:project_name>', view_func=ListIssues
 jiraBlueprint.add_url_rule('/issues_by_name/<string:summary_name>', view_func=SearchIssuesByName.as_view('search_issues_by_name'))
 jiraBlueprint.add_url_rule('/issues_by_id/<string:issueId>', view_func=SearchIssueByID.as_view('search_issue_by_id'))
 jiraBlueprint.add_url_rule("/create/issue_link", view_func=CreateIssueLink.as_view("create_issue_link"))
-jiraBlueprint.add_url_rule("/update/issue", view_func=UpdateIssue.as_view("update_issue"), methods=["POST"])
 
 
