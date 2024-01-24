@@ -34,31 +34,47 @@ class ListProjects(MethodView):
             # Return a JSON response with failure and the error message
             return jsonify({"text": "Failed", "error": str(E)})
 
+
+
 class ListIssueTypes(MethodView):
     def get(self):
         """
         Summary: This class handles the endpoint for retrieving all the issue types in a Project.
         """
         try:
+            # Retrieve the Issue Types for the specified project (e.g., "RISK")
             createmeta = jira_client.createmeta(projectKeys="RISK")
+            
+            # Extract the list of issue types from the create metadata
             issue_types = createmeta.get('projects', [])[0].get('issuetypes', [])
-            return jsonify({"text":" success","issue_type_list":issue_types})
+
+            return jsonify({"text": "Success", "issue_type_list": issue_types})
+        
         except Exception as E:
-            return jsonify({"text":" Failed","error":str(E)})
+            return jsonify({"text": "Failed", "error": str(E)})
+
+
 
 
 class ListIssueLinkTypes(MethodView):
     def get(self):
         """
-        Summary: This class handles the endpoint for retrieving all the link types present on jira.
-        it can be used to give the data in dropdown while linking the risk to another ticket.
+        Summary: This class handles the endpoint for retrieving all the link types present on Jira.
+        It can be used to provide data in a dropdown while linking the risk to another ticket.
         """
         try:
+            # Retrieve all available issue link types using the jira_client
             all_link_types = jira_client.issue_link_types()
+            
+            # Serialize each link type using the get_jira_serialized_object function
             issue_link_types_list = [get_jira_serialized_object(link_type) for link_type in all_link_types]
-            return jsonify({"text":" success","link_types":issue_link_types_list})
+            
+            # Return a JSON response with success and the list of issue link types
+            return jsonify({"text": "Success", "link_types": issue_link_types_list})
+        
         except Exception as E:
-            return jsonify({"text":" Failed","error":str(E)})
+            # Return a JSON response with failure and the error message
+            return jsonify({"text": "Failed", "error": str(E)})
 
 
 class ListCustomFields(MethodView):
@@ -67,38 +83,153 @@ class ListCustomFields(MethodView):
         Summary: Lists all custom fields.
         """
         try:
+            # Retrieve the project details for the specified project (e.g., "RISK")
             project = jira_client.project("RISK")
-
+            
+            # Retrieve all available custom fields using the jira_client
             fields = jira_client.fields()
-            return jsonify({"text":" success","fields":fields})
+            
+            return jsonify({"text": "Success", "fields": fields})
+        
         except Exception as E:
-            return jsonify({"text":" Failed","error":str(E)})
-
+            return jsonify({"text": "Failed", "error": str(E)})
 
 
 
 class CreateRisk(MethodView):
     def post(self):
         """
-        Summary : This view creates a Risk (ticket) on jira .
-        Input Data - 
+        Summary: This view creates a Risk (ticket) on Jira.
+        Input Data -
         issue_dict = {
-            'project': {'id': 123}, 
+            'project': {'id': 123},
             'summary': 'New issue from jira-python',
             'description': 'Look into this one',
             'issuetype': {'name': 'Bug'},
         }
         """
         try:
+            # Extract JSON data from the request
             req_data = request.json 
 
+            # Create a new issue on Jira using the provided issue_dict
             new_issue = jira_client.create_issue(req_data['issue_dict'])
-            new_issue.update(fields={"customfield_10035": {"value" :"1 - Low"}})
-            # 
-            new_issue = [get_jira_serialized_object(new_issue) ]
-            return jsonify({"text":" success","issue" :new_issue })
+            
+            # Update a custom field for the new issue (e.g., customfield_10035 with value "1 - Low")
+            new_issue.update(fields={"customfield_10035": {"value": "1 - Low"}})
+            
+            # Serialize the created issue using the get_jira_serialized_object function
+            new_issue = [get_jira_serialized_object(new_issue)]
+            
+            return jsonify({"text": "Success", "issue": new_issue})
+        
         except Exception as E:
-            return jsonify({"text":" Failed","error":str(E)})
+            return jsonify({"text": "Failed", "error": str(E)})
+
+
+
+
+
+
+class ListIssuesByProjectName(MethodView):
+    def get(self, project_name):
+        try:
+            # Search for issues in the specified project using JQL (Jira Query Language)
+            issues_in_proj = jira_client.search_issues(f"project={project_name}")
+            
+            # Serialize each issue using the get_jira_serialized_object function
+            issue_list = [get_jira_serialized_object(issue) for issue in issues_in_proj]
+            
+            # Return a JSON response with success and the list of serialized issues
+            return jsonify({"text": "Success", "issues": issue_list})
+        
+        except Exception as E:
+            # Return a JSON response with failure and the error message
+            return jsonify({"text": "Failed", "error": str(E)})
+
+    
+
+
+
+class SearchIssuesByName(MethodView):
+    def get(self, summary_name):
+        try:
+            # Search for issues with summary containing the specified name using JQL (Jira Query Language)
+            issues = jira_client.search_issues(f'summary~{summary_name}')
+            
+            # Serialize each issue using the get_jira_serialized_object function
+            issues_list = [get_jira_serialized_object(issue) for issue in issues]
+            
+            return jsonify({"text": "Success", "issue_list": issues_list})
+        
+        except Exception as E:
+            return jsonify({"text": "Failed", "error": str(E)})
+
+
+
+class SearchIssueByID(MethodView):
+    def get(self,issueId):
+        try:
+            # Retrieve the details of the specified issue (e.g., "RISK-1")
+            issue = jira_client.issue(issueId)
+            
+            # Extract relevant information from the issue
+            status_name = issue.fields.status.name if issue.fields.status else None
+            
+            # Prepare a dictionary with key details of the issue
+            data = {
+                "key": issue.key,
+                "summary": issue.fields.summary,
+                "description": issue.fields.description,
+                "status": status_name,
+                "assignee": issue.fields.assignee
+            }
+
+            return jsonify({"text": "Success", "issue": data})
+        
+        except Exception as E:
+            return jsonify({"text": "Failed", "error": str(E)})
+
+
+
+
+class CreateIssueLink(MethodView):
+    def post(self):
+        try:
+            # Extract JSON data from the request
+            data = request.json
+            
+            # Create a link between two issues using the specified data
+            jira_client.create_issue_link(inwardIssue=data["inwardIssue"], outwardIssue=data["outwardIssue"], type=data["linkType"])
+            
+            return jsonify({"text": "Success", "status": 200, "message": "Issues linked successfully"})
+        
+        except Exception as E:
+            return jsonify({"text": "Failed", "error": str(E)})
+
+
+
+
+class UpdateIssue(MethodView):
+    def post(self):
+        try:
+            data = request.json
+            issue = jira_client.issue(data["issue_id"])
+            for field_name in issue.raw['fields']:
+                print("field_name======================", field_name)
+            issue.update(summary=data["summary"], description=data["description"])
+            status_name = issue.fields.status.name if issue.fields.status else None
+            new_data = {
+                "key": issue.key,
+                "summary": issue.fields.summary,
+                "description": issue.fields.description,
+                "status": status_name,
+                "assignee": issue.fields.assignee
+            }
+
+            return jsonify({"text": " success", "status": 200, "message": "issues updated successfully", "updated data": new_data})
+        except Exception as E:
+            return jsonify({"text": " Failed", "error": str(E)})
 
 class UpdateRisk(MethodView):
     def put(self):
@@ -135,16 +266,24 @@ class UpdateRisk(MethodView):
             return jsonify({"text":" Failed","error":str(E)})
 
 
+
+
+
+
+
 # jira.assign_issue(issue, 'newassignee')
 
 jiraBlueprint.add_url_rule('/custom_fields', view_func=ListCustomFields.as_view('custom_fields'))
-
-
-
 jiraBlueprint.add_url_rule('/projects', view_func=ListProjects.as_view('projects'))
 jiraBlueprint.add_url_rule('/issue_types', view_func=ListIssueTypes.as_view('issue_types'))
 jiraBlueprint.add_url_rule('/issue_link_types', view_func=ListIssueLinkTypes.as_view('issue_link_types'))
 jiraBlueprint.add_url_rule('/create_risk', view_func=CreateRisk.as_view('create_risk'))
 jiraBlueprint.add_url_rule('/update_risk', view_func=UpdateRisk.as_view('update_risk'))
+
+jiraBlueprint.add_url_rule('/issues/<string:project_name>', view_func=ListIssuesByProjectName.as_view('list_issues_by_project_name'))
+jiraBlueprint.add_url_rule('/issues_by_name/<string:summary_name>', view_func=SearchIssuesByName.as_view('search_issues_by_name'))
+jiraBlueprint.add_url_rule('/issues_by_id/<string:issueId>', view_func=SearchIssueByID.as_view('search_issue_by_id'))
+jiraBlueprint.add_url_rule("/create/issue_link", view_func=CreateIssueLink.as_view("create_issue_link"))
+jiraBlueprint.add_url_rule("/update/issue", view_func=UpdateIssue.as_view("update_issue"), methods=["POST"])
 
 
