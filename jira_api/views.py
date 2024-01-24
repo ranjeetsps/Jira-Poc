@@ -1,7 +1,11 @@
 from flask import request, jsonify, Blueprint
 from flask.views import MethodView
 import requests, base64, codecs
+
+
 jiraBlueprint = Blueprint('apiBlueprint', "__name__")
+
+
 import os
 
 from jira_poc.utility.jira_auth import get_jira_serialized_object
@@ -13,10 +17,6 @@ from jira_poc import jira_client
 # customfield_10035 = IMpact
 
 
-
-@jiraBlueprint.route("/testapi")
-def GetProjects():
-    return jsonify({"status":200,"message":"Jira APi hit"})
 
 
 class ListProjects(MethodView):
@@ -40,7 +40,7 @@ class ListIssueTypes(MethodView):
         Summary: This class handles the endpoint for retrieving all the issue types in a Project.
         """
         try:
-            createmeta = jira_client.createmeta(projectKeys="RISKEVENT")
+            createmeta = jira_client.createmeta(projectKeys="RISK")
             issue_types = createmeta.get('projects', [])[0].get('issuetypes', [])
             return jsonify({"text":" success","issue_type_list":issue_types})
         except Exception as E:
@@ -142,7 +142,7 @@ jiraBlueprint.add_url_rule('/custom_fields', view_func=ListCustomFields.as_view(
 
 
 jiraBlueprint.add_url_rule('/projects', view_func=ListProjects.as_view('projects'))
-jiraBlueprint.add_url_rule('/issues', view_func=ListIssueTypes.as_view('issues'))
+jiraBlueprint.add_url_rule('/issue_types', view_func=ListIssueTypes.as_view('issue_types'))
 jiraBlueprint.add_url_rule('/issue_link_types', view_func=ListIssueLinkTypes.as_view('issue_link_types'))
 jiraBlueprint.add_url_rule('/create_risk', view_func=CreateRisk.as_view('create_risk'))
 jiraBlueprint.add_url_rule('/update_risk', view_func=UpdateRisk.as_view('update_risk'))
