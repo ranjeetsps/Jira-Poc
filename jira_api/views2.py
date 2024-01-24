@@ -1,6 +1,6 @@
 from jira_poc import jira_client
 from jira_poc import app
-from jira_poc.utility.jira_auth import get_jira_serialize_project
+from jira_poc.utility.jira_auth import get_jira_serialized_object
 from flask import request,jsonify
 
 
@@ -10,7 +10,7 @@ def searchIssue(name):
     try:
         issues_in_proj = jira_client.search_issues(f"project={name}")
         print("issues_in_proj=======================>",issues_in_proj)
-        project_data_list = [get_jira_serialize_project(project) for project in issues_in_proj]
+        project_data_list = [get_jira_serialized_object(project) for project in issues_in_proj]
         return {"text":" success","project_list":project_data_list}
     except Exception as E:
             return {"text":" Failed","error":str(E)}
@@ -21,7 +21,7 @@ def searchIssueByName(name):
     try:
         issues_in_proj = jira_client.search_issues(f'summary~{name}')
         print("issues_in_proj=======================>",issues_in_proj)
-        project_data_list = [get_jira_serialize_project(project) for project in issues_in_proj]
+        project_data_list = [get_jira_serialized_object(project) for project in issues_in_proj]
         return {"text":" success","project_list":project_data_list}
     except Exception as E:
             return {"text":" Failed","error":str(E)}
@@ -67,7 +67,7 @@ def searchIssueLinkTypes():
         # issues_in_proj = jira_client.project_issue_types("project='jira projrct'", startAt=0, maxResults=50)
         issues_in_proj = jira_client.issue_link_types()
         print("issues_in_proj=======================>",issues_in_proj)
-        project_data_list = [get_jira_serialize_project(project) for project in issues_in_proj]
+        project_data_list = [get_jira_serialized_object(project) for project in issues_in_proj]
         return {"text":" success","project_list":project_data_list}
     except Exception as E:
             return {"text":" Failed","error":str(E)}

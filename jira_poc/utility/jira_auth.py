@@ -37,7 +37,7 @@ def get_jira():
     return JIRA_GLOBAL
 
 
-def get_jira_serialize_project(data):
+def get_jira_serialized_object(data):
     serialized_project = {}
     for key, value in data.__dict__.items():
         # Convert non-serializable values to strings
