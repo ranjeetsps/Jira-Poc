@@ -5,10 +5,10 @@ from flask import request,jsonify
 
 
 
-@app.route('/issues/<string:name>')
-def searchIssue(name):
+@app.route('/issues/<string:project_name>')
+def ListIssuesByProjectName(project_name):
     try:
-        issues_in_proj = jira_client.search_issues(f"project={name}")
+        issues_in_proj = jira_client.search_issues(f"project={project_name}")
         print("issues_in_proj=======================>",issues_in_proj)
         project_data_list = [get_jira_serialized_object(project) for project in issues_in_proj]
         return {"text":" success","project_list":project_data_list}
@@ -16,10 +16,10 @@ def searchIssue(name):
             return {"text":" Failed","error":str(E)}
 
 
-@app.route('/issues_by_name/<string:name>')
-def searchIssueByName(name):
+@app.route('/issues_by_name/<string:summary_name>')
+def SearchIssuesByName(summary_name):
     try:
-        issues_in_proj = jira_client.search_issues(f'summary~{name}')
+        issues_in_proj = jira_client.search_issues(f'summary~{summary_name}')
         print("issues_in_proj=======================>",issues_in_proj)
         project_data_list = [get_jira_serialized_object(project) for project in issues_in_proj]
         return {"text":" success","project_list":project_data_list}
@@ -28,7 +28,7 @@ def searchIssueByName(name):
     
 
 @app.route('/issues_by_id')
-def searchIssueByID():
+def SearchIssueByID():
     try:
           
         issue = jira_client.issue("RISK-1")
@@ -47,62 +47,12 @@ def searchIssueByID():
 
 
 
-########################### IMPORTANT #########################
-
-# @app.route('/issue_types')
-# def searchIssueTypes():
-#     try:
-#         # issues_in_proj = jira_client.project_issue_types("project='jira projrct'", startAt=0, maxResults=50)
-#         issues_in_proj = jira_client.issue_types()
-#         print("issues_in_proj=======================>",issues_in_proj)
-#         project_data_list = [get_jira_serialize_project(project) for project in issues_in_proj]
-#         return {"text":" success","project_list":project_data_list}
-#     except Exception as E:
-#             return {"text":" Failed","error":str(E)}
-    
-
-@app.route('/issue_link_types')
-def searchIssueLinkTypes():
-    try:
-        # issues_in_proj = jira_client.project_issue_types("project='jira projrct'", startAt=0, maxResults=50)
-        issues_in_proj = jira_client.issue_link_types()
-        print("issues_in_proj=======================>",issues_in_proj)
-        project_data_list = [get_jira_serialized_object(project) for project in issues_in_proj]
-        return {"text":" success","project_list":project_data_list}
-    except Exception as E:
-            return {"text":" Failed","error":str(E)}
-
-
-@app.route("/issue_type_by_project")
-def get(self):
-    # Get the list of the prujects
-    try:
-        createmeta = jira_client.createmeta(projectKeys="RISKEVENT")
-        # Extracting issue type names
-        issue_types = createmeta.get('projects', [])[0].get('issuetypes', [])
-        return {"text":" success","issue_type_list":issue_types}
-    except Exception as E:
-        return {"text":" Failed","error":str(E)}
-    
-
-
-############################# CREATE LINK ISSUE ####################################
-
-
-
 @app.route("/create/issue_link",methods =["POST"])
 def createIssueLink():
     # Get the list of the prujects
     try:
         data = request.json
-        link_data = {
-        'inwardIssue': {'key': data["inwardIssue"]},
-        'outwardIssue': {'key': data["outwardIssue"]},
-        'type': {'name': data["linkType"]}  # Replace with the link type you want to use
-    }
-        # jira_client.create_issue_link(link_data)
         jira_client.create_issue_link(inwardIssue = data["inwardIssue"],outwardIssue = data["outwardIssue"],type = data["linkType"])
-
         return {"text":" success","status":200,"message":"issues linked successfully"}
     except Exception as E:
         return {"text":" Failed","error":str(E)}
