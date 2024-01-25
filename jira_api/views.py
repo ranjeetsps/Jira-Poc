@@ -153,7 +153,9 @@ class GetIssueByID(MethodView):
                 "summary": issue.fields.summary,
                 "description": issue.fields.description,
                 "status": status_name,
-                "assignee": issue.fields.assignee
+                "assignee": issue.fields.assignee,
+                "impact" : issue.fields.customfield_10035.value ,
+                "likelyhood" : issue.fields.customfield_10034.value,
             }
             return jsonify({"text": "Success", "issue": data})
         except Exception as E:
@@ -214,8 +216,8 @@ class UpdateRisk(MethodView):
                 "description": issue.fields.description,
                 "status": status_name,
                 "assignee": issue.fields.assignee ,
-                # "impact" : issue.fields.customfield_10035 ,
-                # "likelyhood" : issue.fields.customfield_10034
+                "impact" : issue.fields.customfield_10035.value ,
+                "likelyhood" : issue.fields.customfield_10034.value,
             }
 
             return jsonify({"text": " success", "status": 200, "message": "issues updated successfully", "updated data": new_data})
@@ -227,8 +229,8 @@ class CreateIssueLink(MethodView):
     def post(self):
         """
         Summary : This view links an issue with another issue.
-        Inward Issue - Risk - Id of ticket
-        outwardIssue - linked issue -  id of the ticket
+        risk_id  - Risk - Id of ticket
+        link_id - linked issue -  id of the ticket
         outwardIssue - linked issue -  id of the ticket
         linkType -  get from the ListIssueLinkTypes
         """
@@ -236,7 +238,7 @@ class CreateIssueLink(MethodView):
             # Extract JSON data from the request
             data = request.json
             # Create a link between two issues using the specified data
-            jira_client.create_issue_link(inwardIssue=data["inwardIssue"], outwardIssue=data["outwardIssue"], type=data["linkType"])
+            jira_client.create_issue_link(inwardIssue=data["risk_id"], outwardIssue=data["link_id"], type=data["linkType"])
             return jsonify({"text": "Success", "status": 200, "message": "Issues linked successfully"})
         except Exception as E:
             return jsonify({"text": "Failed", "error": str(E)})
@@ -256,7 +258,7 @@ jiraBlueprint.add_url_rule("/link_issue", view_func=CreateIssueLink.as_view("cre
 
 jiraBlueprint.add_url_rule('/search_issues/<string:project_name>', view_func=ListIssuesByProjectName.as_view('list_issues_by_project_name'))
 jiraBlueprint.add_url_rule('/search_issues_by_name/<string:summary_name>', view_func=SearchIssuesByName.as_view('search_issues_by_name'))
-jiraBlueprint.add_url_rule('/search_issues_by_id/<string:issueId>', view_func=GetIssueByID.as_view('search_issue_by_id'))
+jiraBlueprint.add_url_rule('/get_issues_by_id/<string:issueId>', view_func=GetIssueByID.as_view('get_issues_by_id'))
 
 jiraBlueprint.add_url_rule('/custom_fields', view_func=ListFields.as_view('custom_fields'))
 
