@@ -4,7 +4,7 @@ import requests, base64, codecs
 
 
 jiraBlueprint = Blueprint('apiBlueprint', "__name__")
-
+from jira_api.views2 import *
 
 import os
 
@@ -209,12 +209,11 @@ class UpdateRisk(MethodView):
             issue.update(fields={"customfield_10035": {"value": data["impact"]}})
             issue.update(fields={"customfield_10034": {"value": data["likelyhood"]}})
 
-            status_name = issue.fields.status.name if issue.fields.status else None
             new_data = {
                 "key": issue.key,
                 "summary": issue.fields.summary,
                 "description": issue.fields.description,
-                "status": status_name,
+                "status": issue.fields.status.name,
                 "assignee": issue.fields.assignee ,
                 "impact" : issue.fields.customfield_10035.value ,
                 "likelyhood" : issue.fields.customfield_10034.value,
