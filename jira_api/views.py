@@ -244,8 +244,55 @@ class CreateIssueLink(MethodView):
             return jsonify({"text": "Failed", "error": str(E)})
 
 
+class CreateIssueLink(MethodView):
+    def post(self):
+        """
+        Summary : This view links an issue with another issue.
+        risk_id  - Risk - Id of ticket
+        link_id - linked issue -  id of the ticket
+        outwardIssue - linked issue -  id of the ticket
+        linkType -  get from the ListIssueLinkTypes
+        """
+        try:
+            # Extract JSON data from the request
+            data = request.json
+            # Create a link between two issues using the specified data
+            jira_client.create_issue_link(inwardIssue=data["risk_id"], outwardIssue=data["link_id"], type=data["linkType"])
+            return jsonify({"text": "Success", "status": 200, "message": "Issues linked successfully"})
+        except Exception as E:
+            return jsonify({"text": "Failed", "error": str(E)})
+
+class IssueLink(MethodView):
+    def get(self,id):
+        """
+        id =  issue id
+        gets all the links of a risk
+        """
+        try:
+            import json
+            issue = jira_client.issue(f'{id}')
+            linked_issues =issue.fields.issuelinks
+
+            linked_issues = [get_jira_serialized_object(link) for link in linked_issues]
+            return jsonify({"message": "Success", "linked_issues":linked_issues,"count":len(linked_issues)})
+        except Exception as E:
+            return jsonify({"text": "Failed", "error": str(E)})
+
+    def delete(self,id):
+        """
+        id =  link id
+        gets all the links of a risk
+        """
+        try:
+            jira_client.delete_issue_link(id)        
+            return jsonify({"message": "Removed Link From Risk"})
+        except Exception as E:
+            return jsonify({"text": "Failed", "error": str(E)})
+
+
 
 # jira.assign_issue(issue, 'newassignee')
+
 
 jiraBlueprint.add_url_rule('/projects', view_func=ListProjects.as_view('projects'))
 jiraBlueprint.add_url_rule('/issue_types', view_func=ListIssueTypes.as_view('issue_types'))
@@ -253,7 +300,11 @@ jiraBlueprint.add_url_rule('/issue_types', view_func=ListIssueTypes.as_view('iss
 jiraBlueprint.add_url_rule('/issue_link_types', view_func=ListIssueLinkTypes.as_view('issue_link_types'))
 jiraBlueprint.add_url_rule('/create_risk', view_func=CreateRisk.as_view('create_risk'))
 jiraBlueprint.add_url_rule('/update_risk', view_func=UpdateRisk.as_view('update_risk'))
+
+
 jiraBlueprint.add_url_rule("/link_issue", view_func=CreateIssueLink.as_view("create_issue_link"))
+jiraBlueprint.add_url_rule("/linked_issue/<string:id>", view_func=IssueLink.as_view("linked_issue"))
+
 
 
 jiraBlueprint.add_url_rule('/search_issues/<string:project_name>', view_func=ListIssuesByProjectName.as_view('list_issues_by_project_name'))
