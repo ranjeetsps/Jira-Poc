@@ -2,6 +2,17 @@
 
 
 
+## v3.0.0 (2024-04-11)
+
+### Breaking
+
+* feat(scope): add new feature
+
+A detailed description of the new feature...
+
+BREAKING CHANGE: Description of the breaking changessss ([`60df2bc`](https://github.com/ranjeetsps/Jira-Poc/commit/60df2bc4025799728a047490328059e5a3661603))
+
+
 ## v2.0.0 (2024-04-11)
 
 ### Breaking
