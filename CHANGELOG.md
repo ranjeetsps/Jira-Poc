@@ -2,6 +2,21 @@
 
 
 
+## v1.2.0 (2024-04-11)
+
+### Feature
+
+* feat: allow provided config object to extend other configs ([`d22175d`](https://github.com/ranjeetsps/Jira-Poc/commit/d22175d97ce2aebfb67be19d519498d2674694c1))
+
+### Unknown
+
+* Merge pull request #14 from ranjeetsps/ritesh
+
+BREAKING CHANGE:  key in config file is now used for extending other … ([`02975a0`](https://github.com/ranjeetsps/Jira-Poc/commit/02975a0d48768415d826d306aeb55f58ae447639))
+
+* BREAKING CHANGE:  key in config file is now used for extending other config files ([`3333176`](https://github.com/ranjeetsps/Jira-Poc/commit/3333176190e94b9578c7120e303b43ddfd8e99fb))
+
+
 ## v1.1.0 (2024-04-11)
 
 ### Feature
