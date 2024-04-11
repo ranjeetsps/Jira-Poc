@@ -18,4 +18,4 @@ Smentic versioning
 
 git tag -a v1.0.0 -m "release 1.0.0"
 test  
-Major Readme changes"ssssa   sad" asd ada sdadasd asd ada 
+Major Readme changes"ssssa   sad" asd ada sdadasd asd ada  sdad
