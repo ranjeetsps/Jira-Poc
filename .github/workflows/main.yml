@@ -16,7 +16,7 @@ jobs:
       contents: write
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: ranjeetsps/Jira-Poc
       with:
         fetch-depth: 0
 
