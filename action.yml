@@ -5,7 +5,7 @@ description: "Automatic Semantic Versioning for Python projects"
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   release:
