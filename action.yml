@@ -1,0 +1,26 @@
+name: Semantic Release Test Ranjeet
+
+description: "Automatic Semantic Versioning for Python projects"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    concurrency: release
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Semantic Release Test Ranjeet
+      uses: ranjeetsps/Jira-Poc
+      with:
+        github_token: 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
