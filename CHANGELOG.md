@@ -2,6 +2,21 @@
 
 
 
+## v2.0.0 (2024-04-11)
+
+### Breaking
+
+* feat(scope): add new feature
+
+A detailed description of the new feature...
+
+BREAKING CHANGE: Description of the breaking change ([`eedf54d`](https://github.com/ranjeetsps/Jira-Poc/commit/eedf54dc65f0db2ef8f7a5d6019372ee5ba9bd38))
+
+### Unknown
+
+* featsend an email to the customer when a product is shipped ([`273e729`](https://github.com/ranjeetsps/Jira-Poc/commit/273e729f13be02e79e4d20d1f43e2afe76027d66))
+
+
 ## v1.2.0 (2024-04-11)
 
 ### Feature
