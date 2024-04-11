@@ -2,6 +2,13 @@
 
 
 
+## v3.1.0 (2024-04-11)
+
+### Feature
+
+* feat: change logs must be added ([`63c2868`](https://github.com/ranjeetsps/Jira-Poc/commit/63c2868271f5fb1a463e9d059fba80adda400dbc))
+
+
 ## v3.0.0 (2024-04-11)
 
 ### Breaking
